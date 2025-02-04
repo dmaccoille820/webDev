@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <%- include('header') %>
+
+        <div class="card-container">
+          <% if (projects && projects.length > 0) { %>
+            <% projects.forEach(project => { %>
+              <div class="card">
+                <div class="card-content">
+                  <h3 class="card-title"><%= project.project_name %></h3>
+                  <p>test data</p>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <p>No projects found.</p>
+          <% } %>
+      </div>
+      <div class="container">
+        <div class="page active" id="projectDetails">
+          <div class="heading">Project Details</div>
+          <div class="content">
+            <button class="btn back-btn">Back</button>
+            <div class="chart">Overall activity chart...</div>
+            <p class="status">Status: Ongoing</p>
+            <div class="description">Project description...</div>
+            <ul class="subtasks">
+              <li>Task 1: Style guide and component</li>
+              <li>Task 2: Wireframing & sketch</li>
+              <li>Task 3: 3D Modelling</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+</body>
+</html>

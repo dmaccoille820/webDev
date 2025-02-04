@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+</head>
+<body>
+    <input type="checkbox" id="check">
+    <div class="container">
+        <div class="page login-page">
+            <div class="heading">Task Tracker<br>Login</div>
+            <p id="loginAttempts"></p> 
+            <form action="/users" method="POST">
+                <div class="entryarea">
+                    <input type="text" id="loginUsername" required>
+                    <label for="loginUsername" class="labelline">Enter username or email</label>
+                </div>
+                <div class="entryarea">
+                    <input type="password" id="loginPassword" required>
+                    <label for="loginPassword" class="labelline">Enter your password</label>
+                </div>
+                <a href="#">Forgot password</a>
+                <input type="submit" value="Login" id="btn1">
+                <div class="switch">
+                    <span>Don't have an account?</span>
+                    <label for="check" class="switch-label" data-target="register-page">Register</label>
+                </div>
+            </form>
+        </div>
+        <div class="page register-page">
+            <div class="heading">Task Tracker<br>Register<br></div>
+            <form action="../server/routes/registerRoutes.js" method="post">
+                <div class="entryarea">
+                    <input type="text" id="registerName" required>
+                    <label for="registerName" class="labelline">Enter your Name</label>
+                </div>
+                <div class="entryarea">
+                    <input type="text" id="registerUsername" required>
+                    <label for="registerUsername" class="labelline">Enter your Username</label>
+                </div>
+                <div class="entryarea">
+                    <input type="email" id="registerEmail" required>
+                    <label for="registerEmail" class="labelline">Enter your Email</label>
+                </div>
+                <div class="entryarea">
+                    <input type="password" id="registerPassword" required>
+                    <label for="registerPassword" class="labelline">Enter your Password</label>
+                </div>
+                <div class="entryarea">
+                    <input type="password" id="registerConfirmPassword" required>
+                    <label for="registerConfirmPassword" class="labelline">Confirm your Password</label>
+                </div>
+                <input type="submit" value="Register" id="btn2">
+                <div class="switch">
+                    <span>Already have an account?</span>
+                    <label for="check" class="switch-label" data-target="login-page">Login Now</label>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

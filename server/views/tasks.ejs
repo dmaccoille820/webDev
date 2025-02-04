@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      @font-face {
+        font-family: poppins;
+        src: url("../fonts/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2");
+      }
+    </style>
+    <title>Task Tracker</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon-16x16.png"
+    />
+  </head>
+  <body>
+    <%- include('header', { user: user }) %>
+    <div class="container">
+      <div id="taskCreation">
+        <h2>Create a Task</h2>
+        <form id="createTaskForm" class="form-group">
+          <input
+            type="text"
+            id="taskName"
+            class="form-control"
+            placeholder="Task Name"
+            required
+          /><br />
+          <input
+            type="text"
+            id="taskDescription"
+            class="form-control"
+            placeholder="Task Description"
+            height="20px"
+            required
+          /><br />
+
+          <input
+            type="date"
+            id="taskDueDate"
+            class="form-control"
+            required
+          /><br />
+
+          <select id="taskPriority" class="form-control" required>
+            <option value="Low">Low</option>
+            <option value="Medium Progress">Medium</option>
+            <option value="High">High</option></select
+          ><br />
+          <select id="taskStatus" class="form-control" required>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option></select
+          ><br />
+          <button type="submit" class="btn btn-primary">Create Task</button>
+          <p id="createTaskError" style="color: red"></p>
+          <p id="createTaskSuccess" style="color: green"></p>
+        </form>
+      </div>
+      <div id="taskList">
+        <% if (tasks.length === 0) { %>
+          <p>No tasks yet!</p>
+      <% } else { %>
+          <% tasks.forEach(function(task) { %>
+              <li id="task-<%= task.taskId %>">
+                
+              </li>
+          <% }); %>
+       <% } %>
+      </ul>
+      </div>
+    </div>
+    <script>
+
+document.addEventListener('DOMContentLoaded', function() {
+        const createTaskForm = document.getElementById("createTaskForm");
+        const taskList = document.getElementById("taskList");
+        const userName = document.getElementById("userName");
+    
+        async function createTask(taskData) {
+          try {
+            const response = await fetch("/api/tasks", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(taskData),
+            });
+            if (response.ok) {
+              const data = await response.json();
+              window.location.reload(); // reload to get the new tasks
+            } else {
+              const data = await response.json();
+            }
+          } catch (error) {
+            console.error("Error creating task:", error);
+          }
+        }
+    
+        async function updateTask(taskId, taskData) {
+          try {
+            const response = await fetch(`/api/tasks/${taskId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(taskData),
+            });
+            if (response.ok) {
+              window.location.reload(); // reload to get the new tasks
+            }
+          } catch (error) {
+            console.error("Error updating task:", error);
+          }
+        }
+    
+        async function deleteTask(taskId) {
+          try {
+            const response = await fetch(`/api/tasks/${taskId}`, {
+              method: "DELETE",
+            });
+            if (response.ok) {
+              window.location.reload(); // reload to get the new tasks
+            } else {
+              console.error("Failed to delete task");
+            }
+          } catch (error) {
+            console.error("Error deleting task:", error);
+          }
+        }
+    
+        function displayUpdateForm(task) {
+          const taskElement = document.getElementById(`task-${task.task_id}`);
+          const updateForm = document.createElement("form");
+          updateForm.className = "update-form";
+    
+          // Create and append input fields
+          const inputFields = [
+            { name: "task_name", value: task.task_name, label: "Task Name" },
+            { name: "task_description", value: task.task_description, label: "Task Description" },
+            { name: "due_date", value: task.due_date, label: "Due Date", type: "date" },
+            { name: "priority", value: task.priority, label: "Priority" },
+            { name: "completion_status", value: task.completion_status, label: "Status" },
+          ];
+    
+          inputFields.forEach(field => {
+            const input = document.createElement("input");
+            input.type = field.type || "text";
+            input.name = field.name;
+            input.value = field.value;
+            input.placeholder = field.label;
+            updateForm.appendChild(input);
+          });
+          
+          const submitButton = document.createElement("button");
+          submitButton.type = "submit";
+          submitButton.textContent = "Update Task";
+          submitButton.className = 'update-submit';
+          updateForm.appendChild(submitButton);
+    
+          updateForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            updateTask(task.task_id, Object.fromEntries(new FormData(updateForm)));
+          });
+          taskElement.appendChild(updateForm);
+        }
+        async function fetchUserData() {
+          const sessionId = getCookie("sessionId");
+    
+          try {
+            const response = await fetch("/api/user-data", {
+              headers: {
+                sessionId: sessionId,
+              }
+            });
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            try {
+              const data = await response.json();
+              userName.textContent = data.name;
+              // Now we have more data
+              console.log("User data:", data);
+            } catch (parseError) {
+              console.error("Error parsing user data:", parseError);
+            }
+          
+          } catch (error) {
+            console.error("Error getting user data", error);
+          } 
+        }
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+          }
+    
+        // Add event listener to the form
+        createTaskForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+    
+          const taskName = document.getElementById("taskName").value;
+          const taskDescription = document.getElementById("taskDescription").value;
+          const taskDueDate = document.getElementById("taskDueDate").value;
+          const taskPriority = document.getElementById("taskPriority").value;
+          const taskStatus = document.getElementById("taskStatus").value;
+    
+          await createTask({
+            taskName,
+            taskDescription,
+            taskDueDate,
+            taskPriority,
+            taskStatus,
+          });
+        });
+        fetchUserData();
+    });
+    </script>
+</div>
+</body>
+</html>

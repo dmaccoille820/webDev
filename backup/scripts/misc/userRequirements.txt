@@ -1,0 +1,44 @@
++## User Requirements for Task/To-Do App
++
++**I. User Registration:**
++- Users can register with a unique username, email, name, and password.
++- Passwords are securely stored (e.g., using hashing).
++- System prevents duplicate usernames and emails.
++
++**II. User Login:**
++- Users can log in with their registered username/email and password.
++- System authenticates credentials and grants access upon success.
++
++**III. User Logout:**
++- Users can log out, ending their session.
++
++**IV. Task Creation:**
++- Logged-in users can create tasks with: name, description, due date, priority level.
++- Tasks are stored with creation date and default status (e.g., incomplete).
++
++**V. Task Modification:**
++- Users can edit existing tasks: name, description, due date, priority, completion status.
++
++**VI. Task Deletion:**
++- Users can delete complete tasks, permanently removing all task data.
++
++**VII. Task Viewing & Management:**
++- Users can view their tasks, sort by due date/priority, filter, and select for modification/deletion.
++
++**VIII. Task Statistics:**
++- Users can view summary statistics: completed vs. incomplete, overdue tasks.
++
++**IX. REST API:**
++- A REST API (using JSON) allows interaction with the MySQL database via standard HTTP verbs (GET, POST, PUT, DELETE).
++
++**X. Input Validation:**
++- System validates all user inputs, providing clear error messages for invalid data.
++
++**XI. Security:**
++- Secure authentication to protect user credentials.
++- Address potential vulnerabilities (e.g., SQL injection, cross-site scripting).
++
++**XII. Responsive UI:**
++- The user interface is responsive and usable on desktop and mobile devices.
+
+```

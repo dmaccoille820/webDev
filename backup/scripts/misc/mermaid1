@@ -1,0 +1,42 @@
+mermaid
+graph TD
+    A[User (Browser)] --> B{Login Form};
+    B --> C[registerLogin.js: handleLoginSubmit() - /api/login (POST)];
+    C --> D{Fetch /api/login};
+    D -- usernameOrEmail, password --> E[loginController.js: loginUser()];
+    E --> F[registerLoginModel.js: authenticateUser()];
+    F --> G{FindUserByUsernameOrEmail SP};
+    G --> H{FindUserById SP};
+    H -- userId --> I{bcrypt.compare()};
+    I -- passwordMatch (true) --> J[Set Session (userId)];
+    I -- passwordMatch (false) --> K[Return null - Login Error];
+    J --> L[loginController.js: Success Response (userId)];
+    K --> L
+    L -- userId --> M[registerLogin.js: success - Redirect to /tasks];
+    M --> N[loginMiddleware.js: Session Authentication];
+    N -- Session Data Valid --> O[authMiddleware.js];
+    N -- Session Data Invalid --> Q[/login (Redirect)];
+    O -- User Authenticated --> P[taskController.js: getTasksByUserId()];
+    O -- User Not Authenticated --> Q
+    P --> R{GetUserProjectsTasks SP};
+    R -- User Tasks --> S[Render Tasks View];
+    S --> T[User (Browser) - Tasks Displayed];
+    Q --> A
+    style A fill:#ccf,stroke:#333,stroke-width:2px
+    style T fill:#ccf,stroke:#333,stroke-width:2px
+
+    style B fill:#ffc,stroke:#333,stroke-width:2px
+    style D fill:#ffc,stroke:#333,stroke-width:2px
+    style L fill:#ffc,stroke:#333,stroke-width:2px
+    style M fill:#ffc,stroke:#333,stroke-width:2px
+    style C fill:#afa,stroke:#333,stroke-width:2px
+    style N fill:#afa,stroke:#333,stroke-width:2px
+    style O fill:#afa,stroke:#333,stroke-width:2px
+    style P fill:#afa,stroke:#333,stroke-width:2px
+
+    style E fill:#aaf,stroke:#333,stroke-width:2px
+    style F fill:#aaf,stroke:#333,stroke-width:2px
+    style G fill:#aaf,stroke:#333,stroke-width:2px
+    style H fill:#aaf,stroke:#333,stroke-width:2px
+    style I fill:#aaf,stroke:#333,stroke-width:2px
+    style R fill:#aaf,stroke:#333,stroke-width:2px

@@ -1,0 +1,4 @@
+#!/bin/bash
+/home/user/masterswebdev2/mysql-project-idx/start.sh
+
+SOURCE /home/user/masterswebdev2/scripts/sqlStuff/TaskTracker.sql;
