@@ -1,29 +1,19 @@
-import { queryDatabase } from "../controllers/db.js";
+import { queryDatabase } from "../config/db.js";
 
 class taskModel {
-  /**
-   * Inserts a new task into the database.
-   * @param {string} taskName - The name of the task.
-   * @param {string} taskDescription - The description of the task.
-   * @param {string} taskDueDate - The due date of the task.
-   * @param {string} taskPriority - The priority of the task.
-   * @param {string} taskStatus - The status of the task.
-   * @param {number} userId - The ID of the user creating the task.
-   * @returns {Promise<object>} The result of the database operation.
-   * @throws {Error} If there is an error during the database operation.
-   */
+  
   async createTask(
+    projectId,
     taskName,
     taskDescription,
     taskDueDate,
     taskPriority,
-    taskStatus,
-    userId
+    taskStatus
   ) {
     try {
       const result = await queryDatabase(
-        "INSERT INTO tasks (taskName, taskDescription, taskDueDate, taskPriority, taskStatus, user_id) VALUES (?, ?, ?, ?, ?, ?)",
-        [taskName, taskDescription, taskDueDate, taskPriority, taskStatus, userId]
+        "CALL InsertTask(?, ?, ?, ?, ?, ?)",
+        [projectId, taskName, taskDescription, taskDueDate, taskPriority, taskStatus]
       );
       return result;
     } catch (error) {
@@ -64,6 +54,7 @@ class taskModel {
     /**
    * Updates an existing task in the database.
    * @param {number} taskId - The ID of the task to update.
+   * @param {number} projectId
    * @param {string} taskName - The new name of the task.
    * @param {string} taskDescription - The new description of the task.
    * @param {string} taskDueDate - The new due date of the task.
@@ -72,11 +63,11 @@ class taskModel {
    * @returns {Promise<object>} The result of the database operation.
    * @throws {Error} If there is an error during the database operation.
    */
-  async updateTask(taskId, taskName, taskDescription, taskDueDate, taskPriority, taskStatus) {
+  async updateTask(taskId,projectId, taskName, taskDescription, taskDueDate, taskPriority, taskStatus) {
     try {
       const result = await queryDatabase(
-        "UPDATE tasks SET taskName = ?, taskDescription = ?, taskDueDate = ?, taskPriority = ?, taskStatus = ? WHERE taskId = ?",
-        [taskName, taskDescription, taskDueDate, taskPriority, taskStatus, taskId]
+        "CALL UpdateTask(?, ?, ?, ?, ?, ?, ?)",
+        [taskId,projectId, taskName, taskDescription, taskDueDate, taskPriority, taskStatus]
       );
       return result;
     } catch (error) {
@@ -94,7 +85,7 @@ class taskModel {
   async deleteTask(taskId) {
     try {
       const result = await queryDatabase(
-        "DELETE FROM tasks WHERE taskId = ?",
+        "CALL DeleteTask(?)",
         [taskId]
       );
       return result;

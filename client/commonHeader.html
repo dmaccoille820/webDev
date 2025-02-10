@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="images/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="images/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="images/favicon-16x16.png"
+    />
+    <style>
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .nav-links {
+            display: inline;
+        }
+        .nav-links a {
+            margin-right: 15px;
+            text-decoration: none;
+        }
+        .user-info, .logout-btn {
+          display: inline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header-container">
+        <nav class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/tasks">Tasks</a>
+        </nav>
+        <div class="user-info">
+            <span>Welcome, <span id="username"></span></span>
+        </div>
+        <button class="logout-btn">Logout</button>
+    </header>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameSpan = document.getElementById('username');
+            const username = getCookie('userName');
+            if (username) {
+                usernameSpan.textContent = decodeURIComponent(username);
+            }
+
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+        });
+    </script>
+</body>
+</html>

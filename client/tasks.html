@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Task Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/tasks">Tasks</a></li>
+            </ul>
+        </nav>
+        <div>Welcome, <span id="userName"></span>!<button id="logoutBtn">Logout</button></div>
+    </header>
+    <h1>Welcome, <span id="userName"></span>!</h1>
+    <button id="logoutBtn">Logout</button>
+    <h2>Create New Task</h2>
+    <form id="createTaskForm">
+      <input type="text" id="taskName" placeholder="Task Name" required>
+      <input type="text" id="taskDescription" placeholder="Task Description" required>
+      <input type="date" id="taskDueDate" placeholder="Due Date" required>
+      <input type="text" id="taskPriority" placeholder="Priority" required>
+      <input type="text" id="taskStatus" placeholder="Status" required>
+      <button type="submit">Add Task</button>
+    </form>
+
+    <h2>Your Tasks</h2>
+    <table id="taskTable">
+      <thead>
+        <tr>
+          <th>Task ID</th>
+          <th>Task Name</th>
+          <th>Description</th>
+          <th>Due Date</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="taskTableBody">
+        <!-- Tasks will be populated here by JavaScript -->
+      </tbody>
+    </table>
+    <script src="js/header.js"></script>
+    <script src="tasks.js"></script>
+</body>
+</html>

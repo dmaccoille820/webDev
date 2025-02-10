@@ -236,5 +236,78 @@ input[type="checkbox"] {
 .update-form {
   margin-top: 10px;
 }
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.update-btn, .delete-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.update-btn {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}
+
+.delete-btn {
+  background-color: #f44336; /* Red */
+  color: white;
+}
+#logoutBtn{
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+#createTaskForm{
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  gap: 10px;
+}
+.update-form{
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+  gap: 10px;
+}
+
+.update-submit{
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
 /*# sourceMappingURL=styles.css.map */

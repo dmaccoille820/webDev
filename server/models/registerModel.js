@@ -1,4 +1,4 @@
-import { queryDatabase } from '../controllers/db.js';
+import { queryDatabase } from '../config/db.js';
 import bcrypt from 'bcrypt';
 
 export const createUser = async (userData) => {

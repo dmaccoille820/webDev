@@ -1,58 +1,54 @@
+import { queryDatabase } from "../config/db.js";
 
-import { queryDatabase } from "../controllers/db.js";
-
- const ValidateSession = async (sessionId, userId=null) => {
-  try {
-    console.log("ValidateSession called with sessionId:", sessionId, "and userId: ", userId);
-
-    // If no sessionId, create a new session
+ async function validateSession(req, sessionId, userId) {
+  console.log("validateSession called with sessionId:", sessionId);
+    try {
     if (!sessionId) {
-      console.log("Creating new session, no session id found");
-      const createSessionResult = await queryDatabase(
-        "CALL CreateSession(@p_sessionId, ?, @p_userId, @p_isValid)",
-        [userId]
+      console.log(
+        "validateSession: sessionId is null, creating a new session"
       );
-      
-      const results = await queryDatabase("SELECT @p_sessionId as sessionId");
-      const newSessionId = results[0].sessionId;
-      console.log("New session created, new session Id is: ", newSessionId);
-      return { sessionId: newSessionId, userId: userId };
+      const sql = "CALL CreateSession(@p_session_id, ?);";
+      const result = await queryDatabase(sql, [userId]);
+      console.log("CreateSession: CreateSession result:", result);
+      sessionId = result[0][0].p_session_id; //get the session id from the query
+      console.log("New session created", sessionId);
+      return { sessionId: sessionId, userId: userId };
+    } else {
+      const sessionResult = await queryDatabase("CALL ValidateSession(?)", [
+          sessionId,
+      ]);
+      console.log("ValidateSession: ValidateSession result:", sessionResult);
+      if (sessionResult[0].length === 0) {
+          console.log("Session not valid");
+          return { sessionId: sessionId, userId: null };
+      }
+      const dbUserId = sessionResult[0][0].userId;
+
+        if (dbUserId !== userId && userId !== undefined) {
+            console.log("validateSession: userId mismatch, updating session");
+            await updateSessionUser(sessionId, userId);
+            console.log("Session updated with new userId");
+             return { sessionId: sessionId, userId: userId };
+        } else {
+           console.log("Session valid - ValidateSession userId:", dbUserId);
+            return { sessionId: sessionId, userId: dbUserId };
+        }
     }
-
-    // If sessionId exists, validate it
-    const validationResult = await queryDatabase(
-      "CALL ValidateSession(?, @p_userId, @p_isValid)",
-      [sessionId]
-    );
-
-    const results = await queryDatabase(
-      "SELECT @p_userId as userId, @p_isValid as isValid"
-    );
-
-    const { userId: retrievedUserId, isValid } = results[0];
-
-    if (!isValid || retrievedUserId !== userId) {
-      console.log("Session not valid or user mismatch");
-      return null;
-    }
-    console.log("Session valid");
-    return { sessionId: sessionId, userId: retrievedUserId };
-  } 
-  catch (error) {
-    console.error("ValidateSession: Error validating session:", error);
+  } catch (error) {
+    console.error("Error validating or creating session:", error);
     throw error;
   }
 };
-
-      const updateSessionUser = async (sessionId, userId) => {
+  const updateSessionUser = async (sessionId, userId) => {
         try {
             console.log('updateSessionUser called with sessionId:', sessionId, 'and userId:', userId);
             await queryDatabase('CALL UpdateSessionUser(?, ?)', [sessionId, userId]);
             console.log('updateSessionUser: Session updated successfully.');
         }
-        
+
          catch (error) {
             console.error('updateSessionUser: Error updating session:', error);
         }
     };
-export{ValidateSession, updateSessionUser}
+
+export { validateSession, updateSessionUser }

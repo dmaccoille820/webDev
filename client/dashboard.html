@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div class="header-container">
+        <header class="common-header">
+          <span id="username"></span>
+            <nav>
+              <a href="/dashboard">Dashboard</a>
+              <a href="/tasks">Tasks</a>
+              <a href="/api/logout">Logout</a>
+            </nav>
+        </header></div>
+    <canvas id="progressChart"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        async function fetchProgressData() {
+            const response = await fetch('/api/tasks/progress');
+            const data = await response.json();
+            return data;
+        }
+    
+        function createChart(progressData) {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Pending'],
+                    datasets: [{
+                        label: 'Task Completion',
+                        data: [progressData.completed, progressData.total - progressData.completed],
+                        backgroundColor: ['rgba(54, 162, 235, 0.8)', 'rgba(255, 99, 132, 0.8)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+    
+        document.addEventListener('DOMContentLoaded', async () => {
+            const progressData = await fetchProgressData();
+            createChart(progressData);
+        });
+    </script>
+    <div id="error-container"></div>
+    <div class="card-container">
+    </div>
+<script src="js/header.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

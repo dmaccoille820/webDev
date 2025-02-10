@@ -1,5 +1,5 @@
 const createTaskForm = document.getElementById("createTaskForm");
-const taskList = document.getElementById("taskList");
+const taskTableBody = document.getElementById("taskTableBody");
 const userName = document.getElementById("userName");
 
 async function createTask(taskData) {
@@ -9,31 +9,33 @@ async function createTask(taskData) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(taskData),
+      body: JSON.stringify(taskData)
     });
     if (response.ok) {
       const data = await response.json();
-      loadTasks();
-    } else {
-      const data = await response.json();
+      loadTasks();// Reload tasks after successful creation
+    }
+      else {
+        const data = await response.json();
     }
   } catch (error) {
     console.error("Error creating task:", error);
   }
 }
 
-async function getTasks() {
+async function fetchTasks() {
   try {
-    const sessionId = getCookie("sessionId");
-    const response = await fetch("/tasks", {
+    const response = await fetch("/api/tasks", {
       headers: {
         "sessionId": sessionId,
       },
     });
-    if (!response.ok) {
+      if (!response.ok) {
       throw new Error(`Network response was not ok ${response.status}`);
-    }
-    return await response.json();
+      }
+    const tasks = await response.json();
+    displayTasks(tasks)
+    return tasks;
   } catch (error) {
     console.error("Error fetching tasks:", error);
     throw error;
@@ -48,7 +50,7 @@ async function updateTask(taskId, taskData) {
       body: JSON.stringify(taskData),
     });
     if (response.ok) {
-      loadTasks();
+        loadTasks();
     }
   } catch (error) {
     console.error("Error updating task:", error);
@@ -61,7 +63,7 @@ async function deleteTask(taskId) {
       method: "DELETE",
     });
     if (response.ok) {
-      loadTasks(); // Reload tasks after successful deletion
+      displayTasks(await fetchTasks());
     } else {
       console.error("Failed to delete task");
     }
@@ -74,7 +76,7 @@ function displayUpdateForm(task) {
   const taskElement = document.getElementById(`task-${task.taskId}`);
   const updateForm = document.createElement("form");
   updateForm.className = "update-form";
-
+  updateForm.id = `update-form-${task.taskId}`; // Unique ID for each form
   // Create and append input fields
   const inputFields = [
     { name: "taskName", value: task.taskName, label: "Task Name" },
@@ -101,7 +103,8 @@ function displayUpdateForm(task) {
 
   updateForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    updateTask(task.taskId, Object.fromEntries(new FormData(updateForm)));
+    const taskData = Object.fromEntries(new FormData(updateForm));
+    updateTask(task.task_id, taskData);
   });
   taskElement.appendChild(updateForm);
 }
@@ -140,6 +143,7 @@ function getCookie(name) {
 createTaskForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  const projectId=1; //hardcoded for testing purposes
   const taskName = document.getElementById("taskName").value;
   const taskDescription = document.getElementById("taskDescription").value;
   const taskDueDate = document.getElementById("taskDueDate").value;
@@ -147,6 +151,7 @@ createTaskForm.addEventListener("submit", async (event) => {
   const taskStatus = document.getElementById("taskStatus").value;
 
   await createTask({
+    projectId,
     taskName,
     taskDescription,
     taskDueDate,
@@ -155,42 +160,79 @@ createTaskForm.addEventListener("submit", async (event) => {
   });
 });
 
-async function loadTasks() {
-  const tasks = await getTasks();
+function addTaskRow(task) {
+  const row = document.createElement("tr");
+  row.id = `task-${task.taskId}`;
+  
+  const taskIdCell = document.createElement("td");
+  taskIdCell.textContent = task.task_id;
+  row.appendChild(taskIdCell);
 
-  taskList.innerHTML = ""; // Clear previous tasks
+  const nameCell = document.createElement("td");
+  nameCell.textContent = task.task_name;
+  row.appendChild(nameCell);
 
-  // Append each task to the task list
-  tasks.forEach((task) => {
-    const taskElement = document.createElement("li");
-    taskElement.id = `task-${task.taskId}`; // Add id to task element
-    taskElement.textContent = `${task.taskName} - ${task.taskDescription} - ${task.taskDueDate} - ${task.taskPriority} - ${task.taskStatus}`;
-    
-    const updateButton = document.createElement('button');
-    updateButton.textContent = 'Update';
-    updateButton.className = 'update-btn';
-    updateButton.id = `update-${task.taskId}`;
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.className = 'delete-btn';
-    deleteButton.id = `delete-${task.taskId}`;
+  const descriptionCell = document.createElement("td");
+  descriptionCell.textContent = task.task_description;
+  row.appendChild(descriptionCell);
 
-    updateButton.addEventListener("click", () => {
-      displayUpdateForm(task);
-    });
+  const dueDateCell = document.createElement("td");
+  dueDateCell.textContent = task.due_date;
+  row.appendChild(dueDateCell);
 
-    // Add event listener to delete button
-    deleteButton.addEventListener("click", () => {
-      deleteTask(task.taskId);
-    });  
-    
+  const priorityCell = document.createElement("td");
+  priorityCell.textContent = task.priority;
+  row.appendChild(priorityCell);
 
-    taskElement.appendChild(updateButton);
-    taskElement.appendChild(deleteButton);
-    taskList.appendChild(taskElement);
+  const statusCell = document.createElement("td");
+  statusCell.textContent = task.completion_status;
+  row.appendChild(statusCell);
+
+  const actionsCell = document.createElement("td");
+  const updateButton = document.createElement("button");
+  updateButton.textContent = "Update";
+  updateButton.className = "update-btn";
+  updateButton.id = `update-${task.taskId}`;
+  updateButton.addEventListener("click", () => {
+    displayUpdateForm(task);
   });
+  const deleteButton = document.createElement("button");
+  deleteButton.textContent = "Delete";
+  deleteButton.className = "delete-btn";
+  deleteButton.id = `delete-${task.taskId}`;
+  deleteButton.addEventListener("click", () => {
+    deleteTask(task.task_id);
+  });
+  actionsCell.appendChild(updateButton);
+  actionsCell.appendChild(deleteButton);
+  row.appendChild(actionsCell);
+
+  taskTableBody.appendChild(row);
 }
+
+async function loadTasks() {
+    taskTableBody.innerHTML = ""; // Clear previous tasks
+    const tasks = await fetchTasks();
+    tasks.forEach(addTaskRow);
+}
+function displayTasks(tasks) {
+    taskTableBody.innerHTML = '';
+    tasks.forEach(task => {
+        const row = document.createElement("tr");
+        const cellKeys = ['task_id', 'task_name', 'task_description', 'due_date', 'priority', 'completion_status'];
+        cellKeys.forEach(key => {
+            const cell = document.createElement("td");
+            cell.textContent = task[key];
+            row.appendChild(cell);
+        });
+        const actionsCell = document.createElement("td");
+        const updateButton = document.createElement("button");
+        updateButton.textContent = "Update";
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        taskTableBody.appendChild(row);
+    });
+  }
 
 async function handleLogout() {
   try {
@@ -217,3 +259,5 @@ document.getElementById("logoutBtn").addEventListener("click", handleLogout);
 
 //Fetch user data
 fetchUserData();
+
+loadTasks();

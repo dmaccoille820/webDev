@@ -1,3 +1,19 @@
+////////////////////////////
+//// General functions ////
+///////////////////////////
+
+function displayError(element, message) {
+  element.innerText = message;
+  element.style.color = "red";
+}
+
+function clearError(element) {
+  element.innerText = "";
+}
+function clearInput(input) {
+  input.value = "";
+}
+
 /////////////////////////
 //// Check box logic ////
 /////////////////////////
@@ -47,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
       usernameInput.addEventListener("focus", () => clearError(usernameError));
       emailInput.addEventListener("focus", () => clearError(emailError));
       passwordInput.addEventListener("focus", () => clearError(passwordError));
+
       confirmPasswordInput.addEventListener("focus", () => clearError(confirmPasswordError));
       registerForm.addEventListener('submit', handleRegistrationSubmit);
   }
@@ -111,7 +128,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Registration Success
           
-          registrationSuccessMessage.innerText="Registration successful. Redirecting in 3";
+          registrationSuccessMessage.innerText = "Registration successful. Redirecting in 3";
+          registrationSuccessMessage.style.color = "green";
           
 
           clearInput(passwordInput);
@@ -141,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 ////////////////////////
-//// Register Logic ////
+////  Login Logic  /////
 ////////////////////////
 
 
@@ -153,6 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const loginPasswordError = document.getElementById("loginPasswordError");
   const loginAttempts = document.getElementById("loginAttempts");
   const loginButton = document.getElementById("btn1"); 
+ 
 
   enableLoginButton(loginButton);
 
@@ -168,6 +187,17 @@ document.addEventListener("DOMContentLoaded", function () {
   loginForm.addEventListener("submit", handleLoginSubmit);
 });
 
+function setUsernameInHeader() {
+  const username = localStorage.getItem('username');
+  if (username) {
+    const usernameElement = document.getElementById('username');
+    if (usernameElement) {
+      usernameElement.textContent = username;
+    }
+  }
+}
+
+setUsernameInHeader();
 let loginAttemptCount = 0;
 let lockoutTimeout = null;
 let timeoutId = null;
@@ -213,12 +243,17 @@ async function handleLoginSubmit(event) {
     if (response.ok) {
       console.log("Login success");
       const data = await response.json();
+      const username = data.username;
+      localStorage.setItem('username', username);
+      setUsernameInHeader();
+      
       loginAttemptCount = 0;
       timeoutId = null; // Reset timeoutId
       clearTimeout(timeoutId);
       enableLoginButton(loginButton);
-      console.log("Redirecting to /tasks");
-      window.location.href = "/tasks";
+      console.log("Redirecting to /dashboard");
+      
+      window.location.href = "/dashboard";
     } else {
       loginAttemptCount++;
 

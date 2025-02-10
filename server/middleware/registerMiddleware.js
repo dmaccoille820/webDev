@@ -1,4 +1,4 @@
-import { validatePassword } from './passwordValidator.js';
+import { validatePassword } from '../utils/validation.js';
   
 export const validateRegistration = (req, res, next) => {
   const { name, username, email, password, confirmPassword } = req.body;

@@ -4,15 +4,18 @@ export const sessionMiddleware = async (req, res, next) => {
   try {
     if (req.session && req.session.userId) {
       console.log('Session ID from Login Middleware: ', req.session.userId);
-      const user = await userModel.findUserById(req.session.userId);
+      const user = await userModel.findUserByUsernameOrEmail(req.session.userId);
       if (user) {
+        req.session.username = user.username;
+
         const userObject = {
             name: user.name,
             username: user.username,
             email: user.email,
           };
           req.user = userObject;
-          next();
+        console.log('User object from Login Middleware:', userObject)
+        return res.status(200).json({ user: userObject, username: user.username });
       } else {
         req.session.destroy(() => {
           console.log('Session destroyed');
