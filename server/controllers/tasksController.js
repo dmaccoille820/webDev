@@ -129,5 +129,19 @@ const updateTask = async (req, res) => {
       res.status(500).json({ message: "Internal Server Error" });
     }
   };
-
-export { getAllTasks, createTask, updateTask, deleteTask };
+  const getTasksProgress = async (req, res) => {
+    try {
+      if (!req.userId || !req.userId.user_id) {
+        console.error("userId is missing for getTasksProgress");
+        return res.status(401).json({ message: "Unauthorized: User ID is missing for getTasksProgress." });
+      }
+      const userId = req.userId.user_id;
+      const progressData = await TaskModel.getTaskProgressByUserId(userId);
+      res.status(200).json(progressData);
+    } catch (error) {
+      console.error("Error getting tasks progress:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }; 
+  
+export { getAllTasks, createTask, updateTask, deleteTask, getTasksProgress };

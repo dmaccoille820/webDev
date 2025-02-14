@@ -1,4 +1,4 @@
-import { queryDatabase } from "../controllers/db.js";
+import { queryDatabase } from "../config/db.js";
 
 
   export const getProjectsByUserID = async function getProjectsByUserID(userID)

@@ -1,10 +1,10 @@
-import { validatePassword } from '../utils/validation.js';
-  
+import { validatePasswordServer } from '../utils/validation.js';
+
 export const validateRegistration = (req, res, next) => {
   const { name, username, email, password, confirmPassword } = req.body;
   const errors = {};
 
-  if (!name || name.length < 3|| username.trim() === "") {
+  if (!name || name.length < 3 || username.trim() === "") {
     errors.name = "Name must be at least 3 characters long.";
   }
 
@@ -20,10 +20,10 @@ export const validateRegistration = (req, res, next) => {
     errors.email = "Email is not valid.";
   }
 
-  if (!password || password.trim() === ""|| password.length < 8) {
+  if (!password || password.trim() === "" || password.length < 8) {
     errors.password = "Longer Password is required: 8 charachters";
   } else {
-    const passwordError = validatePassword(password);
+    const passwordError = validatePasswordServer(password);
     if (passwordError) {
       errors.password = passwordError;
     }
@@ -42,8 +42,10 @@ export const validateRegistration = (req, res, next) => {
   }
 };
 export const preventLoggedIn = (req, res, next) => {
-  if(req.user){
-    res.status(400).json({ message: "User is already logged in."});
+  const sessionId = req.cookies?.sessionId;
+  if (sessionId) {
+    res.status(400).json({ message: "User is already logged in." });
+    return;
   }
   next();
 };

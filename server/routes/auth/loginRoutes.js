@@ -1,73 +1,116 @@
 import express from "express";
 import * as loginController from "../../controllers/auth/loginController.js";
-import { updateSessionUser, validateSession } from "../../models/sessionModel.js";
-import { authenticateUser } from "../../models/loginModel.js";
+import * as loginModel from "../../models/loginModel.js";
+import {
+  updateSessionUser,
+  validateSession,
+  createNewSession,
+} from "../../models/sessionModel.js";
 
 const router = express.Router();
 
-router.post("/", async (req, res, next) => {
+router.post("/", async (req, res) => {
   try {
-    const { usernameOrEmail, password } = req.body;
-    const user = await authenticateUser(usernameOrEmail, password);
+    console.log("about to authenticate user in loginRoutes", req.body);
 
-    if (!user) {
-      console.error("User Not Authenticated");
-      return res.status(401).json({ message: "Invalid credentials." });
+    if (!req.body.usernameOrEmail || !req.body.password) {
+      console.error("Username/email and password are required.");
+      return res
+        .status(400)
+        .json({ message: "Username/email and password are required." });
     }
 
-    const userId = user.user_id;
-   
-    const userName = user.name;
-
-    console.log("User ID:", userId, "User name:", userName);
-
+    const { status, safeUser, message } = await loginController.login(
+      req.body.usernameOrEmail,
+      req.body.password
+    );
+    console.log("status in loginRoutes", status, safeUser, message);
+    if (status != 200) {
+      return res.status(status).json({ message });
+    }
+    const user = await loginModel.authenticateUser(
+      req.body.usernameOrEmail,
+      req.body.password
+    );
+    console.log("user from loginModel Authentication", user);
     let sessionResult;
     try {
+      console.log(
+        "cookies session and user id:",
+        req.cookies.sessionId,
+        user.user_id
+      );
       if (req.cookies && req.cookies.sessionId) {
-        sessionResult = await validateSession(req, req.cookies.sessionId);
+        sessionResult = await validateSession(
+          req.cookies.sessionId,
+          user.user_id
+        );
+      } else {
+        const newSessionId = await createNewSession(user.user_id);
+        console.log("newSessionId:", newSessionId);
+        sessionResult = { sessionId: newSessionId };
       }
 
-      console.log("sessionResult inside try before updateSessionUser:",sessionResult);
-      if (sessionResult) {
-        if (sessionResult.userId === null) {
-          sessionResult.userId = userId;
-        }
-
-        res.cookie("sessionId", sessionResult.sessionId, {
-          httpOnly: true,
-          secure: false,
-          maxAge: 3600000,
-          path: "/",
-        });
-
-        res.cookie("userName", userName, {
-          httpOnly: false,
-          secure: false,
-          maxAge: 3600000,
-          path: "/",
-        });
-
-        if (req.session) {
-          req.session.name = userName;
-        }
-        if (req.session) {
-          req.session.sessionId = sessionResult.sessionId;
-          req.session.userId = sessionResult.userId;
-        }
-
-        console.log("updateSessionUser called with session id", sessionResult.sessionId, "and user id", userId);
-        await updateSessionUser(sessionResult.sessionId, userId);
+      if (!sessionResult) {
+        console.error("Failed to create or validate session");
+        return res
+          .status(500)
+          .json({ message: "Failed to create or validate session." });
       }
-    } catch (error) {
-      console.error("loginRoutes.js - Error updating session:", error);
-      return res.status(500).json({ message: "Internal server error" });
-    }
+
+      console.log(
+        "sessionResult inside try before updateSessionUser:",
+        sessionResult
+      );
+
+      sessionResult.userId = user.user_id;
+
+      res.cookie("sessionId", sessionResult.sessionId, {
+        httpOnly: false,
+        secure: false,
+        maxAge: 3600000,
+        path: "/",
+      });
+
+      res.cookie("user_name", user.name, {
+        httpOnly: false,
+        secure: false,
+        maxAge: 3600000,
+        path: "/",
+      });
+
+      if (req.session) {
+        req.session.name = user.username;
+      }
+      if (req.session) {
+        req.session.sessionId = sessionResult.sessionId;
+        req.session.userId = sessionResult.userId;
+      }
+
+      
+      
+
     
-    next();
+        return res.status(200).json({ ...safeUser, sessionId: sessionResult.sessionId });
+
+    } catch (err) {
+      console.error("loginRoutes.js - Error getting user data:", err);
+      return res.status(500).json({ message: "Internal server error" });
+    } finally{
+      try{
+        console.log("sessionId", sessionResult.sessionId);
+        console.log("userId", sessionResult.userId);
+        await updateSessionUser(sessionResult.sessionId, sessionResult.userId);
+        console.log("Session updated successfully");
+      }catch(e){
+        console.error("loginRoutes.js - Error updating session:", e);
+      }
+    }
   } catch (error) {
     console.error("loginRoutes.js - Error authenticating user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
-}, loginController.loginUser);
+ 
+});
 
 export default router;

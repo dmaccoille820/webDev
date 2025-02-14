@@ -94,10 +94,21 @@ class taskModel {
       throw new Error("Failed to delete task.");
     }
   }
-
-
+    /**
+   * Retrieves the task progress for a specific user.
+   * @param {number} userId - The ID of the user.
+   * @returns {Promise<object>} An object with completed and total task counts.
+   * @throws {Error} If there is an error during the database operation.
+   */
+   async getTaskProgressByUserId(userId) {
+     try {
+       const [rows] = await queryDatabase('CALL GetTaskProgressByUserId(?)', [userId]);
+       console.log('Task progress rows [0][0]:', rows[0][0]);
+       return rows[0][0];
+     } catch (error) {
+       console.error('Error getting task progress by user ID:', error);
+       throw new Error('Failed to get task progress by user ID.');
+     }
+   }
 };
-
-
-
-export default new taskModel();
+export default new taskModel(); 

@@ -1,4 +1,4 @@
-const validatePassword = (password) => {
+const validatePasswordServer = (password) => {
   if (password.length < 8) {
     return "Password must be at least 8 characters long.";
   }
@@ -13,10 +13,6 @@ const validatePassword = (password) => {
   }
   return null;
 };
-const validatePasswordServer = (password) => {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  return passwordRegex.test(password) ? null : "Password must contain at least eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.";
-};
 
 const validateUsernameServer = (username) => {
   const usernameRegex = /^[a-zA-Z0-9_-]{3,16}$/;
@@ -28,4 +24,4 @@ const validateEmailServer = (email) => {
   return emailRegex.test(email) ? null : "Email is not valid.";
 };
 
-export { validatePassword, validatePasswordServer, validateUsernameServer, validateEmailServer };
+export { validatePasswordServer, validateUsernameServer, validateEmailServer };

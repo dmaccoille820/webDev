@@ -1,42 +1,46 @@
-import { queryDatabase } from '../config/db.js';
 import bcrypt from 'bcrypt';
-
-
-export const findUserByUsernameOrEmail = async (usernameOrEmail) => {
-    await queryDatabase('CALL FindUserByUsernameOrEmail(?, @user_id_out)', [usernameOrEmail]);
-    
-    // Fetch the OUT parameter value
-    const resultRows = await queryDatabase('SELECT @user_id_out AS user_id');
-    const resultId = resultRows && resultRows.length > 0 ? resultRows[0] : null;
-    
-    if (resultId && resultId.user_id !== null && resultId.user_id !== undefined) {
-        return resultId.user_id;
-    } else {
-        return -1;
-    } 
-};
-
-
-export const authenticateUser = async (usernameOrEmail, password) => {
+import { queryDatabase } from '../config/db.js';
+async function authenticateUser(usernameOrEmail, password) {
     try {
+        console.log("In authenticateUser in loginModel with ", usernameOrEmail, password);
+        const [findUserResult] = await queryDatabase('CALL FindUserByUsernameOrEmail(?, @p_user_id_out)', [usernameOrEmail]);
         
-        const userId = await findUserByUsernameOrEmail(usernameOrEmail);
-        if(userId === -1 || userId === null){return null;}
-        
-        const userRows = await queryDatabase('SELECT * FROM users WHERE user_id = ?', [userId]);
-        const user = userRows && userRows.length > 0 ? userRows[0] : null;
-
-        console.log("User found:", user.username || user.email, user);
-
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if (passwordMatch) {
-            return { ...user, user_id: userId };
-        } else {
+        console.log("findUserResult:", findUserResult);
+        if (!findUserResult[0] || findUserResult[0].length === 0) {
+            console.log("User not found");
             return null;
         }
+        const user = findUserResult[0].user_id_out;
+        console.log("user:", user);
+        const user_id_out = user
+        
+        
+       
+        if(user_id_out === undefined) {
+            return null;
+        }
+        const [userDataResult] = await queryDatabase('CALL FindUserById(?)', [Number(user_id_out)]);
+
+        const userData = userDataResult[0];
+        console.log("userData", userData);
+
+        const isPasswordValid = await bcrypt.compare(password, userData.password);
+        console.log("isPasswordValid: ", isPasswordValid);
+        if (!isPasswordValid) {
+            console.log("Invalid password");
+            return null;
+        }
+
+        return {
+            user_id: user_id_out,
+            name: userData.name,
+            username: userData.username,
+            email: userData.email,
+        };
     } catch (error) {
-        console.error("Error authenticating user:", error);
-        return null;
-    } 
-};
+        console.error("Error in authenticateUser:", error);
+        throw error;
+    }
+}
+
+export { authenticateUser };

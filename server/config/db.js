@@ -19,6 +19,8 @@ async function queryDatabase(query, params) {
   try {
     connection = await pool.getConnection();
     console.log('queryDatabase - connection pool OK');
+    console.log('Executing SQL query:', query);
+    console.log('Parameters:', params);
     const [rows] = await connection.execute({
       sql: query,
       values: params,
