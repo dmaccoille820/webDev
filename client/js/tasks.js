@@ -29,13 +29,17 @@ async function fetchTasks() {
       headers: {
         "sessionId": sessionId,
       },
-    });
+    });    
       if (!response.ok) {
       throw new Error(`Network response was not ok ${response.status}`);
       }
     const tasks = await response.json();
-    displayTasks(tasks)
-    return tasks;
+      if (tasks.length === 0) {
+          taskTableBody.innerHTML = '<p>There are no tasks.</p>';
+        } else {
+          displayTasks(tasks);
+        }
+        return tasks;
   } catch (error) {
     console.error("Error fetching tasks:", error);
     throw error;
@@ -216,23 +220,50 @@ async function loadTasks() {
     tasks.forEach(addTaskRow);
 }
 function displayTasks(tasks) {
-    taskTableBody.innerHTML = '';
-    tasks.forEach(task => {
-        const row = document.createElement("tr");
-        const cellKeys = ['task_id', 'task_name', 'task_description', 'due_date', 'priority', 'completion_status'];
-        cellKeys.forEach(key => {
-            const cell = document.createElement("td");
-            cell.textContent = task[key];
-            row.appendChild(cell);
-        });
-        const actionsCell = document.createElement("td");
-        const updateButton = document.createElement("button");
-        updateButton.textContent = "Update";
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        taskTableBody.appendChild(row);
+  taskTableBody.innerHTML = '';
+  tasks.forEach(task => {
+    const row = document.createElement("tr");
+    row.id = `task-${task.taskId}`;
+
+    const cellKeys = ['task_id', 'task_name', 'task_description', 'due_date', 'priority'];
+    cellKeys.forEach(key => {
+      const cell = document.createElement("td");
+      cell.textContent = task[key];
+      row.appendChild(cell);
     });
-  }
+
+    const statusCell = document.createElement("td");
+    statusCell.textContent = task.completion_status;    
+    if (task.completion_status.toLowerCase() === 'completed') {
+      statusCell.classList.add('status-completed');
+    } else if (task.completion_status.toLowerCase() === 'in progress') {
+      statusCell.classList.add('status-in-progress');
+    } else if (task.completion_status.toLowerCase() === 'pending') {
+      statusCell.classList.add('status-pending');
+    }
+
+
+    row.appendChild(statusCell);
+
+    const actionsCell = document.createElement("td");
+    const updateButton = document.createElement("button");
+    updateButton.textContent = "Update";
+    updateButton.className = "update-btn";
+    updateButton.addEventListener("click", () => {
+      displayUpdateForm(task);
+    });
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.className = "delete-btn";
+    deleteButton.addEventListener("click", () => {
+      deleteTask(task.task_id);
+    });
+    actionsCell.appendChild(updateButton);
+    actionsCell.appendChild(deleteButton);
+    row.appendChild(actionsCell);
+    taskTableBody.appendChild(row);
+  });
+}
 
 async function handleLogout() {
   try {

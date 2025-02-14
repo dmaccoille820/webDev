@@ -292,6 +292,25 @@ header.common-header nav a:hover {
   background-color: #ff66cc;
   color: #0e1734; }
 
+/* Styles for task status */
+.status-completed {
+  background-color: green;
+  color: white;
+  padding: 5px;
+}
+
+.status-in-progress {
+  background-color: orange;
+  color: white;
+  padding: 5px;
+}
+
+.status-pending {
+  background-color: yellow;
+  color: black;
+  padding: 5px;
+}
+
 /*# sourceMappingURL=styles.css.map */
 
 /*# sourceMappingURL=styles.css.map */
